@@ -9,6 +9,8 @@ public class Paddle {
 	
 	public int x, y, width = 50, height = 200;
 
+	public int score;
+
 	public Paddle(Pong pong, int paddleNumber) {
 		this.paddleNumber = paddleNumber;
 		

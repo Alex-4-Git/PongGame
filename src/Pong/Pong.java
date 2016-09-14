@@ -2,8 +2,10 @@ package Pong;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -11,6 +13,8 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
+
+import org.omg.CORBA.BAD_OPERATION;
 
 public class Pong implements ActionListener, KeyListener{
 	
@@ -24,9 +28,13 @@ public class Pong implements ActionListener, KeyListener{
 	
 	public Paddle player2;
 	
+	public Ball ball;
+	
 	public boolean bot = false;
 	
 	public boolean w,s,up,down;
+	
+	public int gameStatus = 0; // 0 = Stopped, 1 = Paused, 2 = Playing
 	
 	public Pong() {
 		
@@ -36,7 +44,7 @@ public class Pong implements ActionListener, KeyListener{
 		start();
 		renderer = new Renderer();
 		
-		jframe.setSize(width + 15,  height);
+		jframe.setSize(width + 15,  height + 35);
 		jframe.setVisible(true);
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jframe.add(renderer);
@@ -49,6 +57,7 @@ public class Pong implements ActionListener, KeyListener{
 	public void start(){
 		player1 = new Paddle(this, 1);
 		player2 = new Paddle(this, 2);
+		ball = new Ball(this);
 	}
 	
 	private void update() {
@@ -72,22 +81,44 @@ public class Pong implements ActionListener, KeyListener{
 		// TODO Auto-generated method stub
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, width, height);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
-	
-		g.setColor(Color.WHITE);
-		g.setStroke(new BasicStroke((float)2.5));
-		g.drawLine(width/2, 0, width/2, height);
+		if(gameStatus == 0){
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Arial", 1, 50));
+			g.drawString("PONG", width/2 - 75, 50);
+			
+			g.setFont(new Font("Arial", 1, 30));
+			g.drawString("Press Space to Play", width/2 - 150, height/2 - 25);
+			g.drawString("Press Shift to Play with Bot", width/2 - 200, height/2 + 25);
+		}
 		
-		player1.render(g);
-		player2.render(g);
+		if(gameStatus == 2 || gameStatus == 1){
+			g.setColor(Color.WHITE);
+			g.setStroke(new BasicStroke((float)2.5));
+			g.drawLine(width/2, 0, width/2, height);
+			
+			player1.render(g);
+			player2.render(g);
+			ball.render(g);
+		}
+		
+		
+		if(gameStatus == 1){
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Arial", 1, 50));
+			g.drawString("PONG", width/2 - 20, 50);
+		}
 	}
 
 	
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		update();
+		if(gameStatus == 2){
+			update();
+		}
+	
 		renderer.repaint();
 	}
 
