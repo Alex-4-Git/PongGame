@@ -14,7 +14,6 @@ import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
-import org.omg.CORBA.BAD_OPERATION;
 
 public class Pong implements ActionListener, KeyListener{
 	
@@ -41,7 +40,6 @@ public class Pong implements ActionListener, KeyListener{
 		Timer timer = new Timer(20, this);
 		JFrame jframe = new JFrame("Pong");
 		
-		start();
 		renderer = new Renderer();
 		
 		jframe.setSize(width + 15,  height + 35);
@@ -55,6 +53,7 @@ public class Pong implements ActionListener, KeyListener{
 	}
 	
 	public void start(){
+		gameStatus = 2;
 		player1 = new Paddle(this, 1);
 		player2 = new Paddle(this, 2);
 		ball = new Ball(this);
@@ -107,7 +106,7 @@ public class Pong implements ActionListener, KeyListener{
 		if(gameStatus == 1){
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", 1, 50));
-			g.drawString("PONG", width/2 - 20, 50);
+			g.drawString("PAUSED", width/2 - 103, height/2 - 105);
 		}
 	}
 
@@ -132,6 +131,7 @@ public class Pong implements ActionListener, KeyListener{
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
 		int id = e.getKeyCode();
+		
 		if(id == KeyEvent.VK_W){
 			w = true;
 		}
@@ -143,6 +143,20 @@ public class Pong implements ActionListener, KeyListener{
 		}
 		if(id == KeyEvent.VK_DOWN){
 			down = true;
+		}
+		if( id== KeyEvent.VK_SHIFT && gameStatus == 0){
+			bot = true;
+			start();
+		}
+		if(id == KeyEvent.VK_SPACE){
+			if(gameStatus == 0){
+				bot = false;
+				start();
+			}else if(gameStatus == 1){
+				gameStatus = 2;
+			}else if(gameStatus == 2){
+				gameStatus = 1;
+			}
 		}
 	}
 	
@@ -163,6 +177,7 @@ public class Pong implements ActionListener, KeyListener{
 		if(id == KeyEvent.VK_DOWN){
 			down = false;
 		}
+		
 	}
 
 	@Override
