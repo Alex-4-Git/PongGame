@@ -14,6 +14,8 @@ import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import org.omg.CORBA.BAD_OPERATION;
+
 
 public class Pong implements ActionListener, KeyListener{
 	
@@ -74,6 +76,7 @@ public class Pong implements ActionListener, KeyListener{
 		if(down){
 			player2.move(false);
 		}
+		ball.update(player1, player2);
 	}
 	
 	public void render(Graphics2D g) {
@@ -117,7 +120,7 @@ public class Pong implements ActionListener, KeyListener{
 		if(gameStatus == 2){
 			update();
 		}
-	
+		
 		renderer.repaint();
 	}
 
