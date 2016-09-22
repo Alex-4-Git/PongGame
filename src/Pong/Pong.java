@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
@@ -31,14 +32,23 @@ public class Pong implements ActionListener, KeyListener{
 	
 	public Ball ball;
 	
-	public boolean bot = false;
+	public boolean bot = false, selectingDifficulty = false;
 	
 	public boolean w,s,up,down;
 	
 	public int gameStatus = 0; // 0 = Stopped, 1 = Paused, 2 = Playing
 	
+	public Random random;
+	
+	public int botMoves=0, cooldown = 0, botDifficulty = 1;
+	
+	public int scoreLimit = 7;
+	
+	public String winner = "";
+	
 	public Pong() {
 		
+		random = new Random();
 		Timer timer = new Timer(20, this);
 		JFrame jframe = new JFrame("Pong");
 		
@@ -63,19 +73,61 @@ public class Pong implements ActionListener, KeyListener{
 	
 	private void update() {
 		// TODO Auto-generated method stub
-		if(w){
-			player1.move(true);
-		}
-		if(s){
-			player1.move(false);
+		
+		if(player1.score == scoreLimit){
+			gameStatus = 3;
 		}
 		
-		if(up){
-			player2.move(true);
+		if(player2.score == scoreLimit){
+			gameStatus = 3;
 		}
-		if(down){
-			player2.move(false);
+		
+		if(w){
+			player1.moveUp(true);
 		}
+		if(s){
+			player1.moveUp(false);
+		}
+		
+		if(!bot){
+			if(up){
+				player2.moveUp(true);
+			}
+			if(down){
+				player2.moveUp(false);
+			}
+		}else{
+			if(cooldown > 0){
+				cooldown --;
+				if(cooldown == 0){
+					botMoves = 0;
+				}
+			}
+			
+			if(botMoves < 10)
+			{
+				if(player2.y + player2.height/2 < ball.y)
+				{
+					player2.moveUp(false);
+				}
+				else if(player2.y + player2.height/2 > ball.y)
+				{
+					player2.moveUp(true);
+				}	
+				
+				if(botDifficulty == 0){
+					cooldown = 30;
+				}else if(botDifficulty == 1){
+					cooldown = 20;
+				}else if(botDifficulty == 2){
+					cooldown = 10;
+				}
+			}
+			
+		}
+		
+		
+		
 		ball.update(player1, player2);
 	}
 	
@@ -90,15 +142,37 @@ public class Pong implements ActionListener, KeyListener{
 			g.setFont(new Font("Arial", 1, 50));
 			g.drawString("PONG", width/2 - 75, 50);
 			
+			if(!selectingDifficulty){
+				
+				g.setFont(new Font("Arial", 1, 30));
+				
+				g.drawString("Press Space to Play", width/2 - 150, height/2 - 25);
+				g.drawString("Press Shift to Play with Bot", width/2 - 200, height/2 + 25);
+				g.drawString("<< Score Limit: " + scoreLimit + " >>", width/2 - 150, height/2 + 75);
+					
+			}
+		}
+		
+		if(selectingDifficulty)
+		{
+			String difficulty = botDifficulty == 0 ? "Easy": botDifficulty == 1 ? "Medium" : "Hard";
 			g.setFont(new Font("Arial", 1, 30));
-			g.drawString("Press Space to Play", width/2 - 150, height/2 - 25);
-			g.drawString("Press Shift to Play with Bot", width/2 - 200, height/2 + 25);
+			g.drawString("Bot Difficulty : " + difficulty, width/2 - 175, height/2 - 25);
+			g.drawString("Press Space to Play", width/2 - 150, height/2 + 25);
 		}
 		
 		if(gameStatus == 2 || gameStatus == 1){
 			g.setColor(Color.WHITE);
 			g.setStroke(new BasicStroke((float)2.5));
 			g.drawLine(width/2, 0, width/2, height);
+			
+			g.setStroke(new BasicStroke(5f));
+			g.drawOval(height/2 - 100, height/2 - 100, 200, 200);
+			
+			
+			g.setFont(new Font("Arial", 1, 50));
+			g.drawString(String.valueOf(player1.score), width/2 - 95, 50);
+			g.drawString(String.valueOf(player2.score), width/2 + 65, 50);
 			
 			player1.render(g);
 			player2.render(g);
@@ -110,6 +184,19 @@ public class Pong implements ActionListener, KeyListener{
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", 1, 50));
 			g.drawString("PAUSED", width/2 - 103, height/2 - 105);
+		}
+		
+		if(gameStatus == 3){
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Arial", 1, 50));
+			g.drawString("PONG", width/2 - 75, 50);
+			
+				
+			g.setFont(new Font("Arial", 1, 30));
+			
+			g.drawString("Press Space to Play Again", width/2 - 180, height/2 - 25);
+			g.drawString("Press ESC for menu", width/2 - 135, height/2 + 25);
+		
 		}
 	}
 
@@ -138,22 +225,41 @@ public class Pong implements ActionListener, KeyListener{
 		if(id == KeyEvent.VK_W){
 			w = true;
 		}
-		if(id == KeyEvent.VK_S){
+		else if(id == KeyEvent.VK_S){
 			s = true;
 		}
-		if(id == KeyEvent.VK_UP){
+		else if(id == KeyEvent.VK_UP){
 			up = true;
 		}
-		if(id == KeyEvent.VK_DOWN){
+		else if(id == KeyEvent.VK_DOWN){
 			down = true;
 		}
-		if( id== KeyEvent.VK_SHIFT && gameStatus == 0){
-			bot = true;
-			start();
+		else if(id == KeyEvent.VK_RIGHT){
+			if(selectingDifficulty){
+				botDifficulty = ++botDifficulty%3;
+			}else if(gameStatus == 0 && scoreLimit < 50){
+				scoreLimit ++;
+			}
 		}
-		if(id == KeyEvent.VK_SPACE){
-			if(gameStatus == 0){
-				bot = false;
+		else if(id == KeyEvent.VK_LEFT ){
+			if(selectingDifficulty){
+				botDifficulty = (--botDifficulty+3)%3;
+			}
+			else if(gameStatus == 0 && scoreLimit > 1){
+				scoreLimit --;
+			}
+		}
+		else if(id == KeyEvent.VK_ESCAPE && (gameStatus == 2 || gameStatus == 3)){
+			gameStatus = 0;
+			selectingDifficulty =false;
+			bot = false;
+		}
+		else if( id== KeyEvent.VK_SHIFT && gameStatus == 0){
+			bot = true;
+			selectingDifficulty = true;
+		}
+		else if(id == KeyEvent.VK_SPACE){
+			if(gameStatus == 0 || gameStatus == 3){
 				start();
 			}else if(gameStatus == 1){
 				gameStatus = 2;

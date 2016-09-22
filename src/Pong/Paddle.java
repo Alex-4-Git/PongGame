@@ -10,6 +10,8 @@ public class Paddle {
 	public int x, y, width = 50, height = 200;
 
 	public int score;
+	
+	public int speed = 15;
 
 	public Paddle(Pong pong, int paddleNumber) {
 		this.paddleNumber = paddleNumber;
@@ -32,9 +34,9 @@ public class Paddle {
 		g.fillRect(x, y, width, height);
 	}
 
-	public void move(boolean up) {
+	public void moveUp(boolean up) {
 		// TODO Auto-generated method stub
-		int speed = 15;
+		
 		if(up){
 			if(y - speed > 0){
 				y -= speed;

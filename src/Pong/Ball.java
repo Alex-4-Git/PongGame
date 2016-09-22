@@ -27,7 +27,7 @@ public class Ball {
 	}
 	
 	public void update(Paddle paddle1, Paddle paddle2){
-		int speed = 2;
+		int speed = 5;
 		this.x += motionX*speed;
 		this.y += motionY*speed;
 		
@@ -62,13 +62,12 @@ public class Ball {
 		else if(checkCollision(paddle1) == 2){
 			paddle2.score++;
 			spawn();
-			pong.gameStatus = 1;
 		}
 		 
 		else if(checkCollision(paddle2) == 2){
 			paddle1.score++;
 			spawn();
-			pong.gameStatus = 1;
+
 		}
 	}
 	
