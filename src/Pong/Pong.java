@@ -76,10 +76,12 @@ public class Pong implements ActionListener, KeyListener{
 		
 		if(player1.score == scoreLimit){
 			gameStatus = 3;
+			winner = "Player1";
 		}
 		
 		if(player2.score == scoreLimit){
 			gameStatus = 3;
+			winner = "Player2";
 		}
 		
 		if(w){
@@ -194,6 +196,8 @@ public class Pong implements ActionListener, KeyListener{
 				
 			g.setFont(new Font("Arial", 1, 30));
 			
+			String win  = bot? "BOT" : winner;
+			g.drawString("Winner is: " + win, width/2 - 120,  200);
 			g.drawString("Press Space to Play Again", width/2 - 180, height/2 - 25);
 			g.drawString("Press ESC for menu", width/2 - 135, height/2 + 25);
 		
